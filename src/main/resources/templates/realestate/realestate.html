@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Real Estates</title>
+  <style>
+    /* Floating Label Input Fields */
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .container .label {
+      font-size: 15px;
+      padding-left: 10px;
+      position: absolute;
+      top: 13px;
+      transition: 0.3s;
+      pointer-events: none;
+    }
+
+    .input {
+      width: 100%;
+      height: 45px;
+      border: none;
+      outline: none;
+      padding: 0px 10px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 15px;
+      background-color: transparent;
+      box-shadow: 3px 3px 10px rgba(0,0,0,1),
+      -1px -1px 6px rgba(255, 255, 255, 0.4);
+    }
+
+    .input:focus {
+      border: 2px solid transparent;
+      color: #fff;
+      box-shadow: 3px 3px 10px rgba(0,0,0,1),
+      -1px -1px 6px rgba(255, 255, 255, 0.4),
+      inset 3px 3px 10px rgba(0,0,0,1),
+      inset -1px -1px 6px rgba(255, 255, 255, 0.4);
+    }
+
+    .container .input:valid ~ .label,
+    .container .input:focus ~ .label {
+      transition: 0.3s;
+      padding-left: 2px;
+      transform: translateY(-35px);
+    }
+
+    .container .input:valid,
+    .container .input:focus {
+      box-shadow: 3px 3px 10px rgba(0,0,0,1),
+      -1px -1px 6px rgba(255, 255, 255, 0.4),
+      inset 3px 3px 10px rgba(0,0,0,1),
+      inset -1px -1px 6px rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="main-content">
+<form action="#" th:action="@{/realestate/new}" th:object="${realestate}"
+      method="post">
+
+  <div class="container">
+    <input type="text" id="city" class="input" th:field="*{city}" required>
+    <label for="city" class="label">City</label>
+    <span th:if="${#fields.hasErrors('city')}" th:errors="*{city}" th:errorclass="error"></span>
+  </div>
+
+  <div class="container">
+    <input type="text" id="address" class="input" th:field="*{address}" required>
+    <label for="address" class="label">Address</label>
+    <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" th:errorclass="error"></span>
+  </div>
+
+  <div class="form-group">
+    <label for="category">Category of Property:</label>
+    <select id="category" name="category">
+      <option value="Residence">Residence</option>
+      <option value="Professional Area">Professional Area</option>
+      <option value="Earth">Earth</option>
+      <option value="Parking">Parking</option>
+    </select>
+  </div>
+
+  <div class="container">
+    <input type="text" id="description" class="input" th:field="*{description}" required>
+    <label for="description" class="label">Description</label>
+  </div>
+
+  <div class="container">
+    <input type="number" id="size" class="input" th:field="*{size}" required>
+    <label for="size" class="label">Size</label>
+    <span th:if="${#fields.hasErrors('size')}" th:errors="*{size}" th:errorclass="error"></span>
+  </div>
+
+  <div class="container">
+    <input type="number" id="price" class="input" th:field="*{price}" required>
+    <label for="price" class="label">Price</label>
+    <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" th:errorclass="error"></span>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+</body>
+</html>

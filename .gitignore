@@ -1,0 +1,15 @@
+target/
+*.log
+*.tmp
+*.jar
+*.war
+*.iml
+.idea/
+*.class
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid

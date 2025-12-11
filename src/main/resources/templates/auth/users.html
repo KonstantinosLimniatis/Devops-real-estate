@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <style>
+        /* Custom button styling */
+        .custom-button {
+            padding: 15px 25px;
+            border: unset;
+            border-radius: 15px;
+            color: #212121;
+            z-index: 1;
+            background: #e8e8e8;
+            position: relative;
+            font-weight: 1000;
+            font-size: 17px;
+            -webkit-box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+            box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+            transition: all 250ms;
+            overflow: hidden;
+            text-decoration: none; /* Remove default link styling */
+            display: inline-block;
+            text-align: center;
+        }
+
+        .custom-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            border-radius: 15px;
+            background-color: #212121;
+            z-index: -1;
+            -webkit-box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+            box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+            transition: all 250ms;
+        }
+
+        .custom-button:hover {
+            color: #e8e8e8;
+        }
+
+        .custom-button:hover::before {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="main-content">
+
+    <div th:if="${ not#lists.isEmpty(users)}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:if="${user.id}">
+                    <a class="custom-button" th:href="@{/user/{id}(id=${user.id})}">Edit</a>
+                    <span th:each="role : ${user.roles}">
+                        <a class="custom-button" th:href="@{/user/role/delete/{id}/{role_id}(id=${user.id},role_id=${role.id})}"
+                           th:utext="'Delete '+  ${role.name}"></a>
+                    </span>
+                    <span th:each="role : ${roles}">
+                        <a class="custom-button" th:href="@{/user/role/add/{id}/{role_id}(id=${user.id},role_id=${role.id})}"
+                           th:if="${! user.roles.contains(role)}"
+                           th:utext="'Add ' + ${role.name}"></a>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${ #lists.isEmpty(users)}">
+        No Students found!
+    </div>
+    <a href="/register" class="custom-button" role="button">Create new User</a>
+
+</div>
+</body>
+</html>

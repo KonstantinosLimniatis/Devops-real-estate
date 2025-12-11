@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{page_layout/layout}">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Real Estates</title>
+</head>
+<body>
+<div layout:fragment="main-content">
+    <div th:if="${ not#lists.isEmpty(realestates)}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>City</th>
+                <th>Address</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Owner</th>
+                <th>Rented</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="realestate : ${realestates}" th:if="${realestate.status == false}">
+                <td th:text="${realestate.city}"></td>
+                <td th:text="${realestate.address}"></td>
+                <td th:text="${realestate.category}"></td>
+                <td th:text="${realestate.description}"></td>
+                <td th:text="${realestate.size}"></td>
+                <td th:text="${realestate.price}"></td>
+                <td th:text="${realestate.user.getUsername()}"></td>
+                <td th:text="${realestate.rented}"></td>
+                <td th:text="${realestate.status}"></td>
+            <td>
+                <a class="btn btn-success" th:href="@{'/realestate/approve/' + ${realestate.id}}">Approve</a>
+                <a class="btn btn-danger" th:href="@{'/realestate/decline/' + ${realestate.id}}">Decline</a>
+            </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${ #lists.isEmpty(realestates)}">
+        No Real Estates found!
+    </div>
+</div>
+</body>
+</html>
