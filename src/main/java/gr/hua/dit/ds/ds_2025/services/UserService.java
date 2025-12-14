@@ -63,7 +63,7 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { // Μέθοδος που φορτώνει έναν χρήστη με βάση το username του
-        Optional<User> opt = userRepository.findByUsername(username);
+        Optional<User> opt = userRepository.findByUsernameOrEmail(username, username);
 
         if(opt.isEmpty())
             throw new UsernameNotFoundException("User with email: " +username +" not found !");

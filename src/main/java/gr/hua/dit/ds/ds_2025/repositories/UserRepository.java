@@ -12,4 +12,6 @@ public interface UserRepository extends JpaRepository<User, Integer> { // Ένα
     Optional<User> findByUsername(String username); // Μέθοδος που αναζητά έναν χρήστη με βάση το username
 
     Optional<User> findByEmail(String email); // Μέθοδος που αναζητά έναν χρήστη με βάση το email
+
+    Optional<User> findByUsernameOrEmail(String username, String email); // Μέθοδος που αναζητά με βάση username ή email
 }
