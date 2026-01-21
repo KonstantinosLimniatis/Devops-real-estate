@@ -1,0 +1,145 @@
+---
+- hosts: all
+  tasks:
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_version_result
+      ignore_errors: true
+      changed_when: false
+
+    - name: Install Docker engine if missing
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+      become: yes
+      when: docker_version_result.rc != 0
+
+    - name: Ensure Docker service running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user_id }}"
+        groups: docker
+        append: yes
+      become: yes
+
+    - name: Check Docker Compose plugin
+      command: docker compose version
+      register: docker_compose_plugin_result
+      ignore_errors: true
+      changed_when: false
+
+    - name: Check legacy docker-compose
+      command: docker-compose --version
+      register: docker_compose_legacy_result
+      changed_when: false
+      failed_when: false
+
+    - name: Install legacy docker-compose from apt if missing
+      apt:
+        name: docker-compose
+        state: present
+        update_cache: yes
+      become: yes
+      when: docker_compose_plugin_result.rc != 0 and docker_compose_legacy_result.rc != 0
+      failed_when: false
+
+    - name: Re-check Docker Compose plugin
+      command: docker compose version
+      register: docker_compose_plugin_final
+      ignore_errors: true
+      changed_when: false
+
+    - name: Re-check legacy docker-compose
+      command: docker-compose --version
+      register: docker_compose_legacy_final
+      changed_when: false
+      failed_when: false
+
+    - name: Download docker-compose v2 binary if missing
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: "0755"
+      become: yes
+      when: docker_compose_plugin_final.rc != 0 and docker_compose_legacy_final.rc != 0
+
+    - name: Re-check legacy docker-compose after download
+      command: docker-compose --version
+      register: docker_compose_legacy_final_after_download
+      ignore_errors: true
+      changed_when: false
+      when: docker_compose_plugin_final.rc != 0 and docker_compose_legacy_final.rc != 0
+
+    - name: Select docker compose command
+      set_fact:
+        compose_cmd: >-
+          {{ 'docker compose'
+             if docker_compose_plugin_final.rc == 0
+             else 'docker-compose' }}
+
+    - name: Fail if docker compose is unavailable
+      fail:
+        msg: "Docker Compose is not available after installation steps."
+      when:
+        - docker_compose_plugin_final.rc != 0
+        - docker_compose_legacy_final.rc != 0
+        - docker_compose_legacy_final_after_download is defined
+        - docker_compose_legacy_final_after_download.rc != 0
+
+    - name: "Clone the Spring repository"
+      git:
+        repo: "https://github.com/KonstantinosLimniatis/real-estate-backend.git"
+        dest: "{{ appdir }}"
+        version: "{{ branch }}"
+        force: yes
+
+    - name: "Write backend.env for Render DB"
+      copy:
+        dest: "{{ appdir }}/docker/backend.env"
+        content: |
+          SPRING_DATASOURCE_URL={{ app.env['spring.datasource.url'] }}
+          SPRING_DATASOURCE_USERNAME={{ app.env['spring.datasource.username'] }}
+          SPRING_DATASOURCE_PASSWORD={{ app.env['spring.datasource.password'] }}
+          SPRING_JPA_HIBERNATE_DDL_AUTO=update
+          SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
+
+    - name: "Populate application.properties"
+      lineinfile:
+        dest: "{{ appdir }}/src/main/resources/application.properties"
+        state: present
+        regexp: "^{{item.key}}="
+        line: "{{item.key}}={{item.value}}"
+      with_items:
+        - "{{app.env | dict2items}}"
+
+    - name: Tear down existing services
+      shell: "{{ compose_cmd }} down"
+      args:
+        chdir: "{{ appdir }}/docker"
+      become: yes
+
+    - name: Create and start services
+      shell: "{{ compose_cmd }} up -d --build"
+      args:
+        chdir: "{{ appdir }}/docker"
+      register: output
+      become: yes
+
+    - debug:
+        var: output
+
+

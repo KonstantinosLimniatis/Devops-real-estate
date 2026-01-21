@@ -1,0 +1,4 @@
+db:
+  name: "students"
+  user: "dbuser"
+  password: "pass123"
