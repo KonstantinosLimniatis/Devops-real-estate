@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: docker-vm
   tasks:
     - name: Install Git
       apt:

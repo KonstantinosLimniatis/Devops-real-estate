@@ -103,3 +103,57 @@ sudo apt install python3-kubernetes
 * [service module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html)
 * [debconf module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/debconf_module.html)
 * [ansible postgres role](https://galaxy.ansible.com/geerlingguy/postgresql)
+
+## Run from scratch (DB + Spring)
+
+1. Go to ansible folder
+```bash
+cd ~/real-estate-backend/ansible-devops
+```
+
+2. Check ssh connectivity
+```bash
+ansible -i hosts.yaml dbserver-vm -m ping
+ansible -i hosts.yaml appserver-vm -m ping
+```
+
+3. Setup/start PostgreSQL on DB VM
+```bash
+ansible-playbook -i hosts.yaml -l dbserver-vm playbooks/postgres-all.yaml
+```
+
+4. Deploy and start Spring on App VM
+```bash
+ansible-playbook -i hosts.yaml -l appserver-vm playbooks/spring.yaml
+```
+
+5. Verify Spring service is up
+```bash
+ansible -i hosts.yaml appserver-vm -b -m shell -a "systemctl is-active spring"
+```
+
+6. Open application
+```text
+http://34.133.192.230
+```
+
+### If you get 502 Bad Gateway
+
+1. Check Spring logs
+```bash
+ansible -i hosts.yaml appserver-vm -b -m shell -a "journalctl -u spring -n 120 --no-pager"
+```
+
+2. If logs show `no pg_hba.conf entry` (PostgreSQL 17 case), add DB rule and restart postgres
+```bash
+ansible -i hosts.yaml dbserver-vm -b -m lineinfile -a "path=/etc/postgresql/17/main/pg_hba.conf line='host all all 34.133.192.230/32 scram-sha-256' insertafter=EOF state=present"
+ansible -i hosts.yaml dbserver-vm -b -m shell -a "systemctl restart postgresql"
+```
+
+3. Re-run Spring playbook and verify
+```bash
+ansible-playbook -i hosts.yaml -l appserver-vm playbooks/spring.yaml
+ansible -i hosts.yaml appserver-vm -b -m shell -a "systemctl is-active spring"
+```
+
+ansible-playbook -i hosts.yaml -l dbserver-vm playbooks/postgres-16.yaml

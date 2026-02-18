@@ -1,0 +1,4 @@
+---
+- import_playbook: postgres-16.yaml
+- import_playbook: spring.yaml
+- import_playbook: spring-vue-docker.yaml

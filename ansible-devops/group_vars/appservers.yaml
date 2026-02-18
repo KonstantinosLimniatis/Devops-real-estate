@@ -8,7 +8,7 @@ app:
   VITE_BACKEND:  http://192.168.56.103
   env:
     server.port: "{{app_port}}"
-    spring.datasource.username: dbuser
-    spring.datasource.password: IKKqG2jYeLIm01Snfx9qkWfLegPSaZDo
-    spring.datasource.url: jdbc:postgresql://dpg-d5hr2i6r433s73buqs00-a.frankfurt-postgres.render.com:5432/dsdb_s6x9
+    spring.datasource.username: admin
+    spring.datasource.password: admin123
+    spring.datasource.url: jdbc:postgresql://db:5432/realestate
 
