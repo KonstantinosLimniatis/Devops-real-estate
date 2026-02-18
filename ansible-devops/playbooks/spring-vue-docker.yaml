@@ -107,7 +107,7 @@
         version: "{{ branch }}"
         force: yes
 
-    - name: "Write backend.env for Render DB"
+    - name: "Write backend.env for Docker Postgres"
       copy:
         dest: "{{ appdir }}/docker/backend.env"
         content: |
@@ -116,15 +116,6 @@
           SPRING_DATASOURCE_PASSWORD={{ app.env['spring.datasource.password'] }}
           SPRING_JPA_HIBERNATE_DDL_AUTO=update
           SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-
-    - name: "Populate application.properties"
-      lineinfile:
-        dest: "{{ appdir }}/src/main/resources/application.properties"
-        state: present
-        regexp: "^{{item.key}}="
-        line: "{{item.key}}={{item.value}}"
-      with_items:
-        - "{{app.env | dict2items}}"
 
     - name: Tear down existing services
       shell: "{{ compose_cmd }} down"

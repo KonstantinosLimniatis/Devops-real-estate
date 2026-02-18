@@ -131,3 +131,17 @@ cd DevOpsX
 3️⃣ Τρέξε το project με Docker
 docker-compose up --build
 
+_______________________________
+
+cd ~/real-estate-backend/ansible-devops
+
+# 1) Βάλε τις νέες IP σε hosts.yaml
+# 2) Βάλε τη νέα DB IP στο host_vars/appserver-vm.yaml (spring.datasource.url)
+
+# 3) Έλεγχος πρόσβασης
+ansible -i hosts.yaml appserver-vm -m ping
+ansible -i hosts.yaml dbserver-vm -m ping
+ansible -i hosts.yaml docker-vm -m ping
+
+# 4) Full deploy
+ansible-playbook -i hosts.yaml playbooks/deploy-all.yaml
