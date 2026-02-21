@@ -6,6 +6,9 @@ After=network.target
 User={{appuser}}
 Group={{appgroup}}
 WorkingDirectory={{service.workingdir}}
+{% for item in app.env | dict2items %}
+Environment="{{ item.key | upper | replace('.', '_') }}={{ item.value }}"
+{% endfor %}
 ExecStart={{service.execstart}}
 
 [Install]

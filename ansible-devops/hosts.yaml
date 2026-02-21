@@ -7,28 +7,21 @@ control:
       ansible_host: control
 
 appservers:
-    hosts:
-      appserver-vm:
-        ansible_host: 34.45.121.194
-        ansible_user: konstantinos
-        ansible_ssh_private_key_file: /home/konstantinos/.ssh/id_ed25519
-      # docker-vm:
-      #   ansible_host: 136.116.211.207
-      #   ansible_user: konstantinos
-      #   ansible_ssh_private_key_file: /home/konstantinos/.ssh/id_ed25519
-      # frontend-vm:
-      #   ansible_host: frontserver
-      # gcloud-app-server:
-      #   ansible_host: devops-gcloud
-      # azure-db-server:
-      #   ansible_host: devops-azure
+  hosts:
+    appserver-vm:
+      ansible_host: 34.173.216.201
+      ansible_user: konstantinos
+      ansible_ssh_private_key_file: /home/konstantinos/.ssh/vmdatabase03
+    docker-vm:
+      ansible_host: 35.232.151.240
+      ansible_user: konstantinos
+      ansible_ssh_private_key_file: /home/konstantinos/.ssh/vmdatabase03
+
       
 
 dbservers:
-    hosts:
-      dbserver-vm:
-        ansible_host: 104.154.101.161
-        ansible_user: konstantinos
-        ansible_ssh_private_key_file: /home/konstantinos/.ssh/vmdatabase03
-      azure-db-server:
-          ansible_host: devops-azure
+  hosts:
+    dbserver-vm:
+      ansible_host: 136.116.23.10
+      ansible_user: konstantinos
+      ansible_ssh_private_key_file: /home/konstantinos/.ssh/vmdatabase03
