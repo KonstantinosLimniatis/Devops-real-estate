@@ -1,7 +1,5 @@
 ---
 - hosts: docker-vm
-  vars_files:
-    - ../group_vars/appservers.secrets.yaml
   tasks:
     - name: Install Git
       apt:
@@ -113,10 +111,6 @@
       copy:
         dest: "{{ appdir }}/docker/backend.env"
         content: |
-          POSTGRES_USER={{ app_postgres_user | default(app.env['spring.datasource.username']) }}
-          POSTGRES_PASSWORD={{ app_postgres_password | default(app.env['spring.datasource.password']) }}
-          POSTGRES_DB={{ app_postgres_db | default('students') }}
-
           SPRING_DATASOURCE_URL={{ app.env['spring.datasource.url'] }}
           SPRING_DATASOURCE_USERNAME={{ app.env['spring.datasource.username'] }}
           SPRING_DATASOURCE_PASSWORD={{ app.env['spring.datasource.password'] }}

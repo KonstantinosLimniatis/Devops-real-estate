@@ -1,7 +1,5 @@
 ---
 - hosts: appserver-vm
-  vars_files:
-    - ../host_vars/appserver-vm.secrets.yaml
 
   pre_tasks:
     - name: Install Java

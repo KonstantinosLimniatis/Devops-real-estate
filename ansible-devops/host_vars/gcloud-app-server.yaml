@@ -1,9 +1,9 @@
 app:
   env:
     server.port: "{{app_port}}"
-    spring.datasource.username: "{{ gcloud_spring_datasource_username | default('appuser') }}"
-    spring.datasource.password: "{{ gcloud_spring_datasource_password | default('change_me') }}"
-    spring.datasource.url: "{{ gcloud_spring_datasource_url | default('jdbc:postgresql://DB_HOST:5432/appdb') }}"
+    spring.datasource.username: appuser
+    spring.datasource.password: apppassword
+    spring.datasource.url: jdbc:postgresql://4.211.249.239:5432/appdb
 
 service:
   workingdir: "/home/rg/spring"

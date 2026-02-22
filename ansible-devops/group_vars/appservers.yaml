@@ -6,7 +6,7 @@ app_port: 8080
 app:
   env:
     server.port: "{{app_port}}"
-    spring.datasource.username: "{{ app_spring_datasource_username | default('dbuser') }}"
-    spring.datasource.password: "{{ app_spring_datasource_password | default('change_me') }}"
-    spring.datasource.url: "{{ app_spring_datasource_url | default('jdbc:postgresql://db:5432/students') }}"
+    spring.datasource.username: admin
+    spring.datasource.password: admin123
+    spring.datasource.url: jdbc:postgresql://db:5432/realestate
 

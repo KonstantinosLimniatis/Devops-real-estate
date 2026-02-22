@@ -1,4 +1,4 @@
 db:
-  name: "{{ db_name | default('students') }}"
-  user: "{{ db_user | default('dbuser') }}"
-  password: "{{ db_password | default('change_me') }}"
+  name: "appdb"
+  user: "appuser"
+  password: "apppassword"
