@@ -13,3 +13,8 @@
 # Certificates
 *.crt
 *.key
+
+# Local host secrets (do not commit)
+host_vars/appserver-vm.secrets.yaml
+host_vars/dbserver-vm.secrets.yaml
+group_vars/appservers.secrets.yaml

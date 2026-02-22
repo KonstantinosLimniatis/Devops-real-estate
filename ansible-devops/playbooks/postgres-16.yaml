@@ -1,6 +1,8 @@
 ---
   - name: install postgres
     hosts: dbservers
+    vars_files:
+      - ../host_vars/dbserver-vm.secrets.yaml
     become: yes
     become_user: root
 

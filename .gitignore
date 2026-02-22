@@ -13,3 +13,4 @@ Thumbs.db
 
 # Docker
 *.pid
+docker/backend.env
