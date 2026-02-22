@@ -1,147 +1,125 @@
-# Real Estate Management System 
+# Real Estate Management System
+
 ## Overview
-This project is a Real Estate Management System
-that allows owners to create real estates and manage rental requests
-while users can search for real estates and make rental requests to them.
-Admins oversee the platform by verifying users and managing real estates.
+Το project είναι μια web εφαρμογή διαχείρισης ακινήτων με:
+- διαχείριση χρηστών και ρόλων,
+- καταχώριση/έγκριση αγγελιών,
+- αιτήματα ενοικίασης,
+- αποστολή email κατά την εγγραφή.
+
+Η εφαρμογή υλοποιείται με Spring Boot και PostgreSQL, και υποστηρίζει deployment με Docker Compose και Ansible.
+
 ## Features
-- Authentication & Authorization
-- User login & registration (Users, Owners, Admin)
-- Role-based access control with Spring Security
-- **Users** can:
-    - View available real estates: Browse all approved real estates listed on the platform.
-    - Rent a real estate: Apply to rent a real estate.
-- **Owners** can:
-    - View own real estates: Owners can see only the real estates they have listed.
-    - Add new real estate: Owners can submit new real estate listings by providing key details (city, address, type, description, size and price).
-    - Edit real estate details: Owners can update specific fields (type, description, size, price).
-    - Delete real estates: Owners can remove their real estates from the platform.
-    - Approve or decline rental requests: Owners can review all rental requests for their real estates.
-- **Admins** can:
-    - Approve or reject new real estate listings: Admins review real estate listings before they become visible.
-    - Manage users: Admins can view all users and modify their details (email, username) and they can also create new users by entering their username, email, and password.
-    - Manage roles: Admins can add or remove roles (User, Owner, Admin) from any account.
-### Tech Stack
-- <b>Backend:</b> Spring Boot (Java), Hibernate (JPA), PostgreSQL
-- <b>Frontend:</b> Thymeleaf
-- <b>Security:</b> Spring Security
-### 1. Installation & Setup
-- Clone the Repository
-```sh
-git clone https://github.com/it2022069/ds-ergasia.git
+- Authentication / Authorization (Spring Security)
+- Ρόλοι: `USER`, `OWNER`, `ADMIN`
+- User registration / login
+- Διαχείριση αγγελιών ακινήτων
+- Έγκριση/απόρριψη αγγελιών από admin
+- Rental request flow (accept / decline από owner)
+- Email notification σε επιτυχημένη εγγραφή
+
+## Tech Stack
+- Backend: Spring Boot (Java 21), Spring Security, JPA/Hibernate
+- Frontend: Thymeleaf
+- Database: PostgreSQL 16
+- DevOps: Docker, Docker Compose, Ansible
+- Build: Maven
+
+## Components (σε σχέση με την εκφώνηση)
+- Βάση δεδομένων: PostgreSQL
+- Σύστημα διαχείρισης χρηστών (admin περιβάλλον): υλοποιημένο
+- Βασικό πληροφοριακό σύστημα: υλοποιημένο
+- Σύστημα ενημέρωσης με email: υλοποιημένο
+- Jenkins: δεν υλοποιείται σε αυτό το repo
+- Kubernetes: δεν υλοποιείται σε αυτό το repo
+
+## Project Structure
+
+```text
+.
+├── src/                          # Spring Boot application
+├── docker/
+│   ├── docker-compose.yml        # Docker services (spring + db)
+│   └── backend.env
+├── ansible-devops/
+│   ├── hosts.yaml
+│   ├── group_vars/
+│   ├── host_vars/
+│   └── playbooks/
+├── Dockerfile
+└── pom.xml
 ```
-### 2. Configure the Database
-Modify the application.properties file with your database:
-```properties
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
-```
-### 3. Run the Application
----------------------------------------------------------------------------------------------
-# DevOpsX – Real Estate Management System  
-Spring Boot | Docker | PostgreSQL (Render) | Maven
 
-## 📌 Overview  
-Το DevOpsX είναι ένα Real Estate Management System βασισμένο σε Spring Boot, το οποίο τρέχει πλήρως σε Docker και συνδέεται σε PostgreSQL database που φιλοξενείται στο Render.  
+## Local Run (Docker Compose)
 
-Το project περιλαμβάνει:
-- Spring Boot Application
-- Cloud PostgreSQL (Render)
-- Docker containerization
-- Maven build system
-- Git version control
+1. Πήγαινε στον φάκελο `docker`:
 
----
-
-# 🛠️ Τεχνολογίες & Εργαλεία που χρησιμοποιήθηκαν
-
-## 1️⃣ **Java (OpenJDK 17 ή 21)**
-Απαιτείται για να τρέξει το Spring Boot project.
-
-**Εγκατάσταση σε Linux (Ubuntu):**
 ```bash
-sudo apt install openjdk-17-jdk
+cd docker
+```
 
-Maven
-sudo apt install maven
-mvn -v
+2. Σήκωσε services:
 
-Docker
-sudo apt install docker.io
-sudo systemctl start docker
-sudo systemctl enable docker
+```bash
+docker compose up -d --build
+```
 
-sudo usermod -aG docker $USER
-newgrp docker
+3. Άνοιξε εφαρμογή:
 
-sudo apt install docker-compose
+```text
+http://localhost:8080
+```
 
-sudo apt install git
-FROM maven:3.9-eclipse-temurin-21 AS build
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn clean package -DskipTests
+4. Τερματισμός:
 
-FROM eclipse-temurin:21-jdk
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+```bash
+docker compose down
+```
 
+## Local Run (χωρίς Docker)
 
+Χρησιμοποίησε PostgreSQL και ρύθμισε τις τιμές στο:
+- `src/main/resources/application.properties`
 
-version: "3.8"
+Έπειτα:
 
-services:
-  app:
-    build: .
-    container_name: realestate-app
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_APPLICATION_NAME: ds-2025
-      SPRING_DATASOURCE_URL: jdbc:postgresql://dpg-YOUR-RENDER-DB:5432/YOUR_DB?sslmode=require
-      SPRING_DATASOURCE_USERNAME: dbuser
-      SPRING_DATASOURCE_PASSWORD: yourpassword
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-      SPRING_JPA_SHOW_SQL: "true"
-      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+```bash
+./mvnw clean package -DskipTests
+./mvnw spring-boot:run
+```
 
-1️⃣ Build τοπικά (προαιρετικό)
-mvn clean package -DskipTests
+## Ansible Deployment
 
-2️⃣ Τρέξιμο μόνο με Docker
-docker-compose up --build
+Το repo περιέχει playbooks για δύο σενάρια:
 
-3️⃣ Τερματισμός
-docker-compose down
+1. VM deployment (PostgreSQL VM + Spring VM + Nginx)
+- `ansible-devops/playbooks/postgres-16.yaml`
+- `ansible-devops/playbooks/spring.yaml`
 
+2. Docker deployment σε VM (compose μέσω Ansible)
+- `ansible-devops/playbooks/docker.yaml`
 
-📥 Πώς κατεβάζεις το project σε άλλο laptop
-1️⃣ Κατέβασε το repository
-git clone https://github.com/KonstantinosLimniatis/DevOpsX.git
+### Βασικά βήματα
 
-2️⃣ Μπες στον φάκελο
-cd DevOpsX
-
-3️⃣ Τρέξε το project με Docker
-docker-compose up --build
-
-_______________________________
-
-cd ~/real-estate-backend/ansible-devops
-
-# 1) Βάλε τις νέες IP σε hosts.yaml
-# 2) Βάλε τη νέα DB IP στο host_vars/appserver-vm.yaml (spring.datasource.url)
-
-# 3) Έλεγχος πρόσβασης
+```bash
+cd ansible-devops
 ansible -i hosts.yaml appserver-vm -m ping
 ansible -i hosts.yaml dbserver-vm -m ping
-ansible -i hosts.yaml docker-vm -m ping
-
-# 4) Full deploy
 ansible-playbook -i hosts.yaml playbooks/deploy-all.yaml
+```
+
+## Email Functionality
+
+Η αποστολή email γίνεται κατά το registration μέσω:
+- `src/main/java/gr/hua/dit/ds/ds_2025/services/EmailService.java`
+- `src/main/resources/templates/email/registration-success.html`
+
+SMTP ρυθμίσεις:
+- `spring.mail.host`
+- `spring.mail.port`
+- `spring.mail.username`
+- `spring.mail.password`
+
+## Notes
+- Η βάση που χρησιμοποιείται είναι PostgreSQL (όχι Render).
+- Για παραγωγικό περιβάλλον προτείνεται αποθήκευση secrets εκτός repository.
