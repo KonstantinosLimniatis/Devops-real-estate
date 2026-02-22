@@ -9,19 +9,18 @@ control:
 appservers:
   hosts:
     appserver-vm:
-      ansible_host: 34.60.110.107
-      ansible_user: konstantinos
-      ansible_ssh_private_key_file: /home/konstantinos/.ssh/vmdatabase03
+      ansible_host: APP_SERVER_PUBLIC_IP
+      ansible_user: YOUR_USER
+      ansible_ssh_private_key_file: ~/.ssh/YOUR_KEY
     docker-vm:
-      ansible_host: 34.56.225.14
-      ansible_user: konstantinos
-      ansible_ssh_private_key_file: /home/konstantinos/.ssh/vmdatabase03
-
-      
+      ansible_host: DOCKER_SERVER_PUBLIC_IP
+      ansible_user: YOUR_USER
+      ansible_ssh_private_key_file: ~/.ssh/YOUR_KEY
 
 dbservers:
   hosts:
     dbserver-vm:
-      ansible_host: 34.30.231.84
-      ansible_user: konstantinos
-      ansible_ssh_private_key_file: /home/konstantinos/.ssh/vmdatabase03
+      ansible_host: DB_SERVER_PUBLIC_IP
+      ansible_user: YOUR_USER
+      ansible_ssh_private_key_file: ~/.ssh/YOUR_KEY
+
