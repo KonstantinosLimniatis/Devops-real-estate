@@ -92,7 +92,7 @@
             <artifactId>thymeleaf-layout-dialect</artifactId>
         </dependency>
 
-        <!-- ⭐ SPRING ACTUATOR (ΠΡΟΣΤΕΘΗΚΕ) ⭐ -->
+        <!-- SPRING ACTUATOR -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
