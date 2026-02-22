@@ -3,8 +3,9 @@ app:
     server.port: "{{app_port}}"
     spring.datasource.username: dbuser
     spring.datasource.password: pass123
-    spring.datasource.url: jdbc:postgresql://34.30.231.84:5432/students #na balo tin public ip tou db server.Ex. jdbc:postgresql://200.10.30.40:5432/students
+    spring.datasource.url: jdbc:postgresql://<DB_SERVER_PUBLIC_IP>:5432/students 
 
 service:
   workingdir: "{{ ansible_user_dir }}/spring"
   execstart: "java -jar {{ ansible_user_dir }}/spring/target/ds-2025-0.0.1-SNAPSHOT.jar"
+
