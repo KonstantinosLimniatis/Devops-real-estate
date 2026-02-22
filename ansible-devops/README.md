@@ -1,159 +1,133 @@
-# Project set up
-* create an inventory file (e.g. hosts or hosts.yaml) that holds the remote hosts that ansible will handle.
-* Example entry is
-```yaml
-webserver: # <-- group
-  hosts: # <-- List of hosts in group
-    gcloud_host: # <-- host number 1 in group
-      ansible_host: 35.189.109.16
-      ansible_port: 22
-      ansible_ssh_user: rg
-    app01:  # <-- host number 2 in group
-      ansible_host: app01
-    app02:  # <-- host number 3 in group
-      ansible_host: app02
-  vars:  # <-- common variables in this group
-    ansible_python_interpreter: /usr/bin/python3
-```
-* to test if all hosts are accesible, run
-```bash
-ansible -m ping all
-```
-* to test if a group of hosts are accesible, run
-```bash
-ansible -m ping all <group-name>
+# Ansible Deployment Guide
+
+This folder contains Ansible inventory, variables, and playbooks used to deploy the project in VM and Docker environments.
+
+## Structure
+
+```text
+ansible-devops/
+├── ansible.cfg
+├── hosts.yaml
+├── group_vars/
+│   ├── all.yaml
+│   ├── appservers.yaml
+│   └── dbservers.yaml
+├── host_vars/
+│   ├── appserver-vm.yaml
+│   ├── dbserver-vm.yaml
+│   └── gcloud-app-server.yaml
+└── playbooks/
+    ├── postgres-16.yaml
+    ├── spring.yaml
+    ├── docker.yaml
+    └── deploy-all.yaml
 ```
 
-# Run development environment with Vagrant
-* run testing environment
-```bash
-vagrant plugin install vagrant-hostmanager
-cd vagrant
-vagrunt up
-vagrant ssh-config >> ~/.ssh/config
-```
-* run a playbook
-```bash
-ansible-playbook -l dbserver-vm playbooks/postgres.yaml
-```
-Links:
-* [Vagrant Quick start](https://learn.hashicorp.com/collections/vagrant/getting-started)
+## Inventory
 
-## Vault
-* create a file that holds the **secret**
-```bash
-touch playbooks/vars/api_key.yml
-```
-* encrypt the file
-```bash
-ansible-vault encrypt playbooks/vars/api_key.yml
-```
-* run task that needs this file
-```bash
-ansible-playbook playbooks/use-api-key.yaml --ask-vault-pass
-```
-and you will be asked to provide the password
-* edit the encrypoted file with
-```bash
-ansible-vault edit playbooks/vars/api_key.ym
-```
-* use stored password to decrypt
-  create a file that holds the password with 600 permissions
-```bash
-vim ~/.ansible/vault_pass.txt
-chmod 600 ~/.ansible/vault_pass.txt
-```
-```bash
-ansible-playbook playbooks/use-api-key.yaml --vault-password-file  ~/.ansible/vault_pass.txt
-```
-Links:
-* [Encrypting content with Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)
-## Ignore host_key_checking
+`hosts.yaml` defines three main targets:
+- `dbserver-vm`: PostgreSQL VM
+- `appserver-vm`: Spring + Nginx VM
+- `docker-vm`: Docker host (runs docker compose)
 
-add this line to ``ansible.cfg`` in [defaults] section
-```ini
-host_key_checking = false
-```
-Links:
-* [Managing host key checking](https://docs.ansible.com/ansible/latest/user_guide/connection_details.html)
+Before running playbooks, update:
+- `ansible_host`
+- `ansible_user`
+- `ansible_ssh_private_key_file`
 
+## Variables
 
-## Get host basic info
+- Common vars: `group_vars/all.yaml`
+- Group defaults:
+  - `group_vars/appservers.yaml`
+  - `group_vars/dbservers.yaml`
+- Host overrides:
+  - `host_vars/appserver-vm.yaml`
+  - `host_vars/dbserver-vm.yaml`
+
+Ansible precedence applies: `host_vars` override `group_vars`.
+
+## Prerequisites
+
+On control machine:
+- Ansible installed
+- SSH access to all target VMs
+- Python available on target VMs (`/usr/bin/python3`)
+
+## Connectivity Check
+
+Run from this folder:
+
 ```bash
-ansible-playbook -l <hostname> playbooks/hostvars_and_facts.yml
-```
-
-## postgres from ansible-galaxy
-install postgresql role
-```bash
-ansible-galaxy install geerlingguy.postgresql
-```
-
-## Kubernetes
-
-install python kubernetes
-```bash
-sudo apt install python3-kubernetes
-
-```
-## Links
-* [apt module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html)
-* [file module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/file_module.html)
-* [copy module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html)
-* [service module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html)
-* [debconf module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/debconf_module.html)
-* [ansible postgres role](https://galaxy.ansible.com/geerlingguy/postgresql)
-
-## Run from scratch (DB + Spring)
-
-1. Go to ansible folder
-```bash
-cd ~/real-estate-backend/ansible-devops
-```
-
-2. Check ssh connectivity
-```bash
+cd ansible-devops
 ansible -i hosts.yaml dbserver-vm -m ping
 ansible -i hosts.yaml appserver-vm -m ping
+ansible -i hosts.yaml docker-vm -m ping
 ```
 
-3. Setup/start PostgreSQL on DB VM
-```bash
-ansible-playbook -i hosts.yaml -l dbserver-vm playbooks/postgres-all.yaml
-```
+## Deployment Scenarios
 
-4. Deploy and start Spring on App VM
+### 1) VM mode (PostgreSQL VM + Spring VM + Nginx)
+
 ```bash
+ansible-playbook -i hosts.yaml -l dbserver-vm playbooks/postgres-16.yaml
 ansible-playbook -i hosts.yaml -l appserver-vm playbooks/spring.yaml
 ```
 
-5. Verify Spring service is up
+Verify Spring service:
+
 ```bash
 ansible -i hosts.yaml appserver-vm -b -m shell -a "systemctl is-active spring"
 ```
 
-6. Open application
-```text
-http://34.133.192.230
+### 2) Docker mode (single Docker VM)
+
+```bash
+ansible-playbook -i hosts.yaml -l docker-vm playbooks/docker.yaml
 ```
 
-### If you get 502 Bad Gateway
+Verify containers:
 
-1. Check Spring logs
+```bash
+ansible -i hosts.yaml docker-vm -m shell -a "docker ps"
+```
+
+### 3) Full run (all playbooks)
+
+`deploy-all.yaml` imports all three playbooks:
+- `postgres-16.yaml`
+- `spring.yaml`
+- `docker.yaml`
+
+```bash
+ansible-playbook -i hosts.yaml playbooks/deploy-all.yaml
+```
+
+## Syntax Check
+
+If your environment needs writable local temp:
+
+```bash
+mkdir -p /tmp/ansible-local
+ANSIBLE_LOCAL_TEMP=/tmp/ansible-local ansible-playbook -i hosts.yaml playbooks/deploy-all.yaml --syntax-check
+```
+
+## Troubleshooting
+
+Check Spring logs on VM mode:
+
 ```bash
 ansible -i hosts.yaml appserver-vm -b -m shell -a "journalctl -u spring -n 120 --no-pager"
 ```
 
-2. If logs show `no pg_hba.conf entry` (PostgreSQL 17 case), add DB rule and restart postgres
+Check Docker logs on docker-vm:
+
 ```bash
-ansible -i hosts.yaml dbserver-vm -b -m lineinfile -a "path=/etc/postgresql/17/main/pg_hba.conf line='host all all 34.133.192.230/32 scram-sha-256' insertafter=EOF state=present"
-ansible -i hosts.yaml dbserver-vm -b -m shell -a "systemctl restart postgresql"
+ansible -i hosts.yaml docker-vm -m shell -a "docker logs --tail 120 re-backend"
 ```
 
-3. Re-run Spring playbook and verify
-```bash
-ansible-playbook -i hosts.yaml -l appserver-vm playbooks/spring.yaml
-ansible -i hosts.yaml appserver-vm -b -m shell -a "systemctl is-active spring"
-```
+Check listening ports:
 
-ansible-playbook -i hosts.yaml -l dbserver-vm playbooks/postgres-16.yaml
+```bash
+ansible -i hosts.yaml docker-vm -m shell -a "ss -ltnp | grep -E ':8080|:5432|:5433'"
+```
